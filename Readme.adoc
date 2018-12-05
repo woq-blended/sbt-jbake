@@ -1,0 +1,4 @@
+# sbt-jbake
+
+Build JBake site with sbt.
+
