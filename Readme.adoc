@@ -1,4 +1,4 @@
 # sbt-jbake
 
-Build JBake site with sbt.
+Build https://jbake.org/[JBake] sites with sbt.
 
