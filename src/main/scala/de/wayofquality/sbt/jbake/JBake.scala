@@ -8,7 +8,7 @@ import sbt._
 
 object JBake extends AutoPlugin {
 
-  private val jbakeVersion = "2.6.3"
+  private val jbakeVersion = "2.6.4"
   private val jbakeUrl = s"https://dl.bintray.com/jbake/binary/jbake-${jbakeVersion}-bin.zip"
 
   object autoImport {
