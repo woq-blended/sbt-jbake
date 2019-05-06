@@ -1,4 +1,10 @@
-# sbt-jbake
+= sbt-jbake
 
 Build https://jbake.org/[JBake] sites with sbt.
 
+
+== Changelog
+
+=== sbt-jbake 0.1.0 - 2019-05-06
+
+* Initial public release
