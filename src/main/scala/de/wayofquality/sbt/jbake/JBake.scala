@@ -24,7 +24,7 @@ object JBake extends AutoPlugin {
 
   import autoImport._
 
-  override def projectSettings: Seq[Def.Setting[_]] = inConfig(Compile)(Seq(
+  override def projectSettings: Seq[Def.Setting[_]] = Seq(
 
     jbakeLib := "jbake" % "jbake" % "2.6.4" from "https://dl.bintray.com/jbake/binary/jbake-2.6.4-bin.zip",
 
@@ -40,7 +40,7 @@ object JBake extends AutoPlugin {
     jbakeAsciidocAttributes := Map(
       "imagesdir" -> "images",
       "imagesoutdir" -> "images"
-    ) ++ jbakeNodeBinDir.value.map(nd =>
+    ) ++ (Compile/jbakeNodeBinDir).value.map(nd =>
       "mermaid" -> nd.getAbsolutePath()
     ),
 
@@ -70,11 +70,11 @@ object JBake extends AutoPlugin {
 
       SiteGenerator(
         jbakeDir = jbakeDir,
-        inputDir = jbakeInputDir.value,
-        outputDir = jbakeOutputDir.value,
-        nodeBinDir = jbakeNodeBinDir.value,
-        attributes = jbakeAsciidocAttributes.value,
-        mode = jbakeMode.value,
+        inputDir = (Compile/jbakeInputDir).value,
+        outputDir = (Compile/jbakeOutputDir).value,
+        nodeBinDir = (Compile/jbakeNodeBinDir).value,
+        attributes = (Compile/jbakeAsciidocAttributes).value,
+        mode = (Compile/jbakeMode).value,
       )(streams.value.log).bake()
     },
 
@@ -97,7 +97,7 @@ object JBake extends AutoPlugin {
 
       site
     }
-  ))
+  )
 }
 
 case class SiteGenerator(
