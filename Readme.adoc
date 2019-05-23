@@ -2,9 +2,129 @@
 
 Build https://jbake.org/[JBake] sites with sbt.
 
+Users of the plugin maintain their documentation in https://asciidoctor.org[AsciiDoc] files in a particular source
+directory. These sources will be baked by JBake into HTML files via the `jbakeBuild` task.
+
+Normally, the HTML files require additional files such as style sheets or java script libraries. For a complete site
+these files must be copied to the jbake outputput directory structure, so that the HTML files can reference them
+properly.
+
+Assembling the site from the baked AsciiDoc files and the additional files is performed via the `jbakeSite` task.
+
+== Configuration settings
+
+jbakeLib (`ModuleID`)::
+The jbake binary to be used. This will be added as a library dependency to the project using the plugin.
+
+[source, scala]
+.default
+----
+jbakeLib := "jbake" % "jbake" % "2.6.4" from "https://dl.bintray.com/jbake/binary/jbake-2.6.4-bin.zip"
+----
+
+jbakeInputDir(`File`)::
+The input directory for the site generation.
+
+[source, scala]
+.default
+----
+jbakeInputDir := baseDirectory.value,
+----
+
+jbakeOutputDir(`File`)::
+The directory for the generated site.
+
+[source, scala]
+.default
+----
+jbakeOutputDir := target.value / "site",
+----
+
+jbakeMode(`String`)::
+Run JBake in build or serve mode. This setting only applies to `jbakeBuild`.
+
+[source, scala]
+.default
+----
+jbakeMode := "build",
+----
+
+jbakeAsciidocAttributes(`Map[String, String]`::
+https://asciidoctor.org/docs/user-manual/#attributes[Asciidoctor attributes] to passed to Asciidoctor. The
+default settings support the use of some https://asciidoctor.org/docs/asciidoctor-diagram[AsciiDoc diagram]
+generators. We have tested it with graphviz, plantUML and mermaid.
+
+[NOTE]
+====
+For mermaid, the node binary directory must be set correctly AND mermaid must have been installed via npm.
+====
+
+[source, scala]
+.default
+----
+jbakeAsciidocAttributes := Map(
+  "imagesdir" -> "images",
+  "imagesoutdir" -> "images"
+) ++ jbakeNodeBinDir.value.map(nd =>
+  "mermaid" -> nd.getAbsolutePath()
+)
+----
+
+jbakeNodeBinDir(`Option[File]`))::
+The directory where we can find the executables for node modules. (Needed, when using e.g. mermaid)
+
+[source, scala]
+.default
+----
+jbakeNodeBinDir := None
+----
+
+jbakeSiteAssets(`Map[File,File]`)::
+Assets to be included in the site. The map keys are the source file to be copied, the values are the
+corresponding destination files. These files will only be copied in `jbakeSite`.
+
+[source, scala]
+.default
+----
+jbakeSiteAssets := Map.empty
+----
+
+== Hints
+
+* To generate the site with sbt into a directory that can be published, you will use `jbakeSite`
+  and perhaps run the publish job after the sbt build.
+
+* If you are working on the documentation, you can initially run a `jbakeSite` to make sure all the
+  required assets are copied into the correct place within the generated site directory.
+
+  Afterwards, you can run `;set jbakeMode := "serve"; jbakeBuild`. This will start JBake itself in
+  https://jbake.org/docs/2.6.4/#preview[server mode], so that you can preview the site locally.
+
+== Sample setup
+
+We are using the plugin to build our documentation. You can have a look at our
+https://github.com/woq-blended/blended/tree/master/doc[source directory], which contains a complete
+setup for JBake including templates and other stuff we need to build the site.
+
+For this project we are using the ScalaJS bundler to transform scss files into css that can then
+be used in the HTML files.
+
+The associated sbt https://github.com/woq-blended/blended/blob/master/project/BlendedDocsJs.scala[project definition]
+and https://github.com/woq-blended/blended/blob/master/doc/docs.webpack.config.js[webpack config]
+complete the configuration.
 
 == Changelog
+
+=== sbt-jbake 0.1.1 - 2019-05-23
+
+* Automatically add the jbake binary distribution as a library dependy, so that it will be cached
+  in the local Ivy repository. The module ID can be set via the `jbakeLib` plugin setting.
 
 === sbt-jbake 0.1.0 - 2019-05-06
 
 * Initial public release
+
+== We love contributions
+
+Let us know when you are using the plugin. Feel free to create an issue in case you run into problems.
+Even better, clone the repo, fix the issue and create a pull request.

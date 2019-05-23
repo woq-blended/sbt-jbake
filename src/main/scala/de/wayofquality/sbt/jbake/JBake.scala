@@ -8,10 +8,8 @@ import sbt._
 
 object JBake extends AutoPlugin {
 
-  private val jbakeVersion = "2.6.4"
-  private val jbakeUrl = s"https://dl.bintray.com/jbake/binary/jbake-${jbakeVersion}-bin.zip"
-
   object autoImport {
+    val jbakeLib = settingKey[ModuleID]("The jbake binary to be used.")
     val jbakeInputDir = settingKey[File]("The input directory for the site generation.")
     val jbakeOutputDir = settingKey[File]("The directory for the generated site.")
     val jbakeMode = settingKey[String]("Run JBake in build or serve mode, default: build")
@@ -27,6 +25,13 @@ object JBake extends AutoPlugin {
   import autoImport._
 
   override def projectSettings: Seq[Def.Setting[_]] = inConfig(Compile)(Seq(
+
+    jbakeLib := "jbake" % "jbake" % "2.6.4" from "https://dl.bintray.com/jbake/binary/jbake-2.6.4-bin.zip",
+
+    libraryDependencies ++= Seq(
+      jbakeLib.value
+    ),
+
     jbakeInputDir := baseDirectory.value,
     jbakeOutputDir := target.value / "site",
     jbakeMode := "build",
@@ -41,14 +46,27 @@ object JBake extends AutoPlugin {
 
     jbakeBuild := {
 
+      val (jbakeFile, jbakeVersion) : (File, String) = {
+
+        val depRes = (Compile / dependencyResolution).value
+
+        val jbakeDep : ModuleID = libraryDependencies.value.filter(id => id.name.equals("jbake")).head
+
+        val f : File = depRes.retrieve(
+          jbakeDep,
+          None,
+          target.value,
+          streams.value.log
+        ).right.get.head
+
+        (f,jbakeDep.revision)
+      }
+
       val log = streams.value.log
       val jbakeDir = target.value / s"jbake-$jbakeVersion-bin"
 
-      val jbakeLib = jbakeDir / "lib" / s"jbake-core-$jbakeVersion.jar"
-      if (!jbakeLib.exists()) {
-        log.info(s"Downloading jbake from [$jbakeUrl]")
-        IO.unzipURL(new URL(jbakeUrl), target.value)
-      }
+      log.info(s"Extracting jbake ...")
+      IO.unzip(jbakeFile, target.value)
 
       SiteGenerator(
         jbakeDir = jbakeDir,
@@ -83,15 +101,15 @@ object JBake extends AutoPlugin {
 }
 
 case class SiteGenerator(
-                          jbakeDir: File,
-                          inputDir: File,
-                          outputDir: File,
-                          nodeBinDir: Option[File],
-                          mode: String,
-                          attributes: Map[String, String]
-                        )(implicit log: Logger) {
+  jbakeDir: File,
+  inputDir: File,
+  outputDir: File,
+  nodeBinDir: Option[File],
+  mode: String,
+  attributes: Map[String, String]
+)(implicit log: Logger) {
 
-  val jbakeCp = (jbakeDir / "lib").listFiles(new FileFilter {
+  private val jbakeCp : String = (jbakeDir / "lib").listFiles(new FileFilter {
     override def accept(pathname: File): Boolean = pathname.isDirectory() || (pathname.isFile && pathname.getName().endsWith("jar"))
   }).map(_.getAbsolutePath()).mkString(File.pathSeparator)
 
@@ -121,7 +139,7 @@ case class SiteGenerator(
       "-b"
     ) ++ (
       if (mode.equalsIgnoreCase("build")) Seq() else Seq("-s")
-      )
+    )
 
     log.info("Running jbake with arguments\n" + args.mkString("\n"))
     val process = Fork.java.fork(jBakeOptions, args)
