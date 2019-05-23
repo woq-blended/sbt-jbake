@@ -97,8 +97,8 @@ jbakeSiteAssets := Map.empty
 * If you are working on the documentation, you can initially run a `jbakeSite` to make sure all the
   required assets are copied into the correct place within the generated site directory.
 
-  Afterwards, you can run `;set jbakeMode := "serve"; jbakeBuild`. This will start JBake itself in
-  https://jbake.org/docs/2.6.4/#preview[server mode], so that you can preview the site locally.
+Afterwards, you can run `;set jbakeMode := "serve"; jbakeBuild`. This will start JBake itself in
+https://jbake.org/docs/2.6.4/#preview[server mode], so that you can preview the site locally.
 
 == Sample setup
 
