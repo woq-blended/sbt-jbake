@@ -1,47 +1,70 @@
 = sbt-jbake
+:version: 0.1.2-SNAPSHOT
+:jbakeVersion: 2.6.4
+:toc:
+:toc-placement: preamble
 
 Build https://jbake.org/[JBake] sites with sbt.
 
-Users of the plugin maintain their documentation in https://asciidoctor.org[AsciiDoc] files in a particular source
-directory. These sources will be baked by JBake into HTML files via the `jbakeBuild` task.
+== Overview
 
-Normally, the HTML files require additional files such as style sheets or java script libraries. For a complete site
-these files must be copied to the jbake outputput directory structure, so that the HTML files can reference them
-properly.
+Users of the plugin maintain their documentation in https://asciidoctor.org[AsciiDoc]
+(other markup languages ar also supported) files in a particular source directory.
+These sources will be baked by JBake into HTML files via the `jbakeBuild` task.
+
+Normally, the HTML files require additional files such as style sheets or java script libraries.
+For a complete site these files must be copied to the jbake outputput directory structure,
+so that the HTML files can reference them properly.
 
 Assembling the site from the baked AsciiDoc files and the additional files is performed via the `jbakeSite` task.
 
 == Usage
 
-Add to `plugins.sbt` of your project
+Add to `/project/plugins.sbt` of your project
 
-[source,scala]
+[source,scala,subs="attributes"]
 ----
 // Generate site with JBake
-addSbtPlugin("de.wayofquality.sbt" % "sbt-jbake" % "0.1.2")
+addSbtPlugin("de.wayofquality.sbt" % "sbt-jbake" % "{version}")
 ----
 
 == Configuration settings
 
-jbakeLib (`ModuleID`)::
-The jbake binary to be used. This will be added as a library dependency to the project using the plugin.
+The following settings and tasks are available.
 
+`jbakeVersion : SettingKey[String]`::
+The JBake version to be used.
+
+`jbakeLib : SettingKey[ModuleID]` ::
++
+--
+The JBake binary distribution to be used.
+This defaults to download the official binary distribution from Bintray,
+but you can override this, if you want to use another one.
 [source, scala]
 .default
 ----
-jbakeLib := "jbake" % "jbake" % "2.6.4" from "https://dl.bintray.com/jbake/binary/jbake-2.6.4-bin.zip"
+jbakeLib := "jbake" % "jbake" % jbakeVersion.value from s"https://dl.bintray.com/jbake/binary/jbake-${jbakeVersion.value}-bin.zip"
 ----
 
-jbakeInputDir(`File`)::
+The `jbakeLib` settings will also be added as a library dependency to the project using the plugin.
+--
+
+`jbakeInputDir : SettingKey[File]` ::
++
+--
 The input directory for the site generation.
 
 [source, scala]
 .default
 ----
-jbakeInputDir := baseDirectory.value,
+jbakeInputDir := baseDirectory.value
 ----
+--
 
-jbakeOutputDir(`File`)::
+`jbakeOutputDir : SettingKey[File]` ::
++
+--
 The directory for the generated site.
 
 [source, scala]
@@ -49,17 +72,23 @@ The directory for the generated site.
 ----
 jbakeOutputDir := target.value / "site",
 ----
+--
 
-jbakeMode(`String`)::
-Run JBake in build or serve mode. This setting only applies to `jbakeBuild`.
+`jbakeMode : SettingKey[String]` ::
++
+--
+Run JBake in `build` or `serve` mode. This setting only applies to `jbakeBuild`.
 
 [source, scala]
 .default
 ----
 jbakeMode := "build",
 ----
+--
 
-jbakeAsciidocAttributes(`Map[String, String]`::
+`jbakeAsciidocAttributes : TaskKey[Map[String, String]]` ::
++
+--
 https://asciidoctor.org/docs/user-manual/#attributes[Asciidoctor attributes] to passed to Asciidoctor. The
 default settings support the use of some https://asciidoctor.org/docs/asciidoctor-diagram[AsciiDoc diagram]
 generators. We have tested it with graphviz, plantUML and mermaid.
@@ -79,8 +108,11 @@ jbakeAsciidocAttributes := Map(
   "mermaid" -> nd.getAbsolutePath()
 )
 ----
+--
 
-jbakeNodeBinDir(`Option[File]`))::
+`jbakeNodeBinDir : TaskKey[Option[File]]`::
++
+--
 The directory where we can find the executables for node modules. (Needed, when using e.g. mermaid)
 
 [source, scala]
@@ -88,8 +120,11 @@ The directory where we can find the executables for node modules. (Needed, when 
 ----
 jbakeNodeBinDir := None
 ----
+--
 
-jbakeSiteAssets(`Map[File,File]`)::
+`jbakeSiteAssets : TaskKey[Map[File,File]]` ::
++
+--
 Assets to be included in the site. The map keys are the source file to be copied, the values are the
 corresponding destination files. These files will only be copied in `jbakeSite`.
 
@@ -98,6 +133,7 @@ corresponding destination files. These files will only be copied in `jbakeSite`.
 ----
 jbakeSiteAssets := Map.empty
 ----
+--
 
 == Hints
 
@@ -106,13 +142,13 @@ jbakeSiteAssets := Map.empty
 
 * If you are working on the documentation, you can initially run a `jbakeSite` to make sure all the
   required assets are copied into the correct place within the generated site directory.
-
++
 Afterwards, you can run `;set Compile/jbakeMode := "serve"; jbakeBuild`. This will start JBake itself in
-https://jbake.org/docs/2.6.4/#preview[server mode], so that you can preview the site locally.
+https://jbake.org/docs/{jbakeVersion}/#preview[server mode], so that you can preview the site locally.
 
 == Sample setup
 
-We are using the plugin to build our documentation. You can have a look at our
+We are using this plugin to build the https://woq-blended.github.io/blended[documentation] of the https://github.com/woq-blended/blended[Blended project]. You can have a look at our
 https://github.com/woq-blended/blended/tree/master/doc[source directory], which contains a complete
 setup for JBake including templates and other stuff we need to build the site.
 
@@ -125,8 +161,9 @@ complete the configuration.
 
 == Changelog
 
-=== sbt-jbake 0.1.2 - 2019-05-23
+=== sbt-jbake {master}
 
+* Added `jbakeVersion` setting.
 * Remove scope `Compile` from default settings.
 
 === sbt-jbake 0.1.1 - 2019-05-23

@@ -9,7 +9,8 @@ import sbt._
 object JBake extends AutoPlugin {
 
   object autoImport {
-    val jbakeLib = settingKey[ModuleID]("The jbake binary to be used.")
+    val jbakeVersion = settingKey[String]("The jbake version.")
+    val jbakeLib = settingKey[ModuleID]("The jbake binary distribution to be used.")
     val jbakeInputDir = settingKey[File]("The input directory for the site generation.")
     val jbakeOutputDir = settingKey[File]("The directory for the generated site.")
     val jbakeMode = settingKey[String]("Run JBake in build or serve mode, default: build")
@@ -26,7 +27,7 @@ object JBake extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
 
-    jbakeLib := "jbake" % "jbake" % "2.6.4" from "https://dl.bintray.com/jbake/binary/jbake-2.6.4-bin.zip",
+    jbakeLib := "jbake" % "jbake" % jbakeVersion.value from s"https://dl.bintray.com/jbake/binary/jbake-${jbakeVersion.value}-bin.zip",
 
     libraryDependencies ++= Seq(
       jbakeLib.value
