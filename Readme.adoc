@@ -1,5 +1,5 @@
 = sbt-jbake
-:version: 0.1.2-SNAPSHOT
+:version: 0.1.2
 :jbakeVersion: 2.6.4
 :toc:
 :toc-placement: preamble
@@ -159,9 +159,14 @@ The associated sbt https://github.com/woq-blended/blended/blob/master/project/Bl
 and https://github.com/woq-blended/blended/blob/master/doc/docs.webpack.config.js[webpack config]
 complete the configuration.
 
+== We love contributions
+
+Let us know when you are using the plugin. Feel free to create an issue in case you run into problems.
+Even better, clone the repo, fix the issue and create a pull request.
+
 == Changelog
 
-=== sbt-jbake {master}
+=== sbt-jbake 0.1.2 - 2019-05-23
 
 * Added `jbakeVersion` setting.
 * Remove scope `Compile` from default settings.
@@ -175,7 +180,3 @@ complete the configuration.
 
 * Initial public release
 
-== We love contributions
-
-Let us know when you are using the plugin. Feel free to create an issue in case you run into problems.
-Even better, clone the repo, fix the issue and create a pull request.
